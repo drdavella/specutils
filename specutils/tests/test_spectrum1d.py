@@ -241,10 +241,8 @@ def test_str():
     assert len(lines) == 3
     assert lines[1].startswith('flux:')
     assert '[ {:.5}, ..., {:.5} ]'.format(flux[0], flux[-1]) in lines[1]
-    assert 'mean={:.5}'.format(np.mean(flux)) in lines[1]
     assert lines[2].startswith('spectral axis:')
     assert '[ {:.5}, ..., {:.5} ]'.format(sa[0], sa[-1]) in lines[2]
-    assert 'mean={:5}'.format(np.mean(sa)) in lines[2]
 
     # Test string representation with uncertainty
     spec_with_uncertainty = Spectrum1D(spectral_axis=np.linspace(100, 1000, 10) * u.nm,
@@ -253,10 +251,19 @@ def test_str():
     result = str(spec_with_uncertainty)
     lines = result.split('\n')
     unc = spec_with_uncertainty.uncertainty
-    print(spec_with_uncertainty)
-    assert len(lines) == 4
-    assert lines[3].startswith('uncertainty')
-    assert '[ {}, ..., {} ]'.format(unc[0], unc[-1]) in lines[3]
+    assert len(lines) == 3
+    first_val = '{:.5} +/- {:.5} {}'.format(
+        spec_with_uncertainty.flux[0].value,
+        spec_with_uncertainty.uncertainty.array[0],
+        spec_with_uncertainty.flux[0].unit
+    )
+    last_val = '{:.5} +/- {:.5} {}'.format(
+        spec_with_uncertainty.flux[-1].value,
+        spec_with_uncertainty.uncertainty.array[-1],
+        spec_with_uncertainty.flux[-1].unit
+    )
+    assert '[ {}, ..., {} ]'.format(first_val, last_val) in lines[1]
+
 
     # Test string representation with multiple flux
     spec_multi_flux = Spectrum1D(spectral_axis=np.linspace(100, 1000, 10) * u.nm,

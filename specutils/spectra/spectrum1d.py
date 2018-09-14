@@ -224,10 +224,19 @@ class Spectrum1D(OneDSpectrumMixin, NDDataRef):
         return self.divide(
             other, compare_wcs=lambda o1, o2: self._compare_wcs(self, other))
 
-    def _format_array_summary(self, label, array):
-        mean = np.mean(array)
-        s = "{:17} [ {:.5}, ..., {:.5} ],  mean={:.5}"
-        return s.format(label+':', array[0], array[-1], mean)
+    def _format_array_summary(self, label, array, uncertainty=None):
+        s = "{:17} [ {}, ..., {} ]"
+        if uncertainty:
+            first, last = tuple(map(
+                lambda zipped: '{0.value:.5} +/- {1:.5} {0.unit:.5}'.format(
+                    zipped[0], zipped[1]
+                ),
+                zip(array.take((0, -1)), uncertainty.array.take((0, -1)))
+            ))
+        else:
+            first, last = ['{:.5}'.format(x) for x in array.take((0, -1))]
+
+        return s.format(label+':', first, last)
 
     def __str__(self):
         result = "Spectrum1D "
@@ -239,17 +248,17 @@ class Spectrum1D(OneDSpectrumMixin, NDDataRef):
         # Handle case of multiple flux arrays
         result += "(length={})\n".format(len(self.spectral_axis))
         if self.flux.ndim > 1:
-            for i, flux in enumerate(self.flux):
+            if self.uncertainty:
+                uncertainty = self.uncertainty
+            else:
+                uncertainty = np.broadcast_to(None, len(self.flux))
+            for i, (flux, unc) in enumerate(zip(self.flux, uncertainty)):
                 label = 'flux{:2}'.format(i)
-                result += self._format_array_summary(label, flux) + '\n'
+                result += self._format_array_summary(label, flux, unc) + '\n'
         else:
-            result += self._format_array_summary('flux', self.flux) + '\n'
+            result += self._format_array_summary('flux', self.flux, self.uncertainty) + '\n'
         # Add information about spectral axis
         result += self._format_array_summary('spectral axis', self.spectral_axis)
-        # Add information about uncertainties if available
-        if self.uncertainty:
-            result += "\nuncertainty:      [ {}, ..., {} ]".format(
-                self.uncertainty[0], self.uncertainty[-1])
         return result
 
     def __repr__(self):
