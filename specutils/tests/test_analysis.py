@@ -8,6 +8,7 @@ from astropy.nddata import StdDevUncertainty
 from astropy.stats.funcs import gaussian_sigma_to_fwhm
 from astropy.tests.helper import quantity_allclose
 
+from ..fitting import fit_continuum
 from ..spectra import Spectrum1D, SpectralRegion
 from ..analysis import (line_flux, equivalent_width, snr, centroid,
                         gaussian_sigma_width, gaussian_fwhm, fwhm)
@@ -78,6 +79,29 @@ def test_equivalent_width_continuum(continuum):
     # Since this is an emission line, we expect the equivalent width value to
     # be negative
     expected = -(np.sqrt(2*np.pi) * u.GHz) / continuum.value
+
+    assert quantity_allclose(result, expected, atol=0.01*u.GHz)
+
+
+def test_equivalent_width_continuum_model():
+
+    np.random.seed(42)
+
+    frequencies = np.linspace(1, 100, 10000) * u.GHz
+    g = models.Gaussian1D(amplitude=1*u.Jy, mean=10*u.GHz, stddev=1*u.GHz)
+    noise = np.random.normal(0., 0.01, frequencies.shape) * u.Jy
+    continuum = models.Gaussian1D(3.2*u.Jy, 40*u.GHz, 25*u.GHz)
+    flux = g(frequencies) + continuum(frequencies) + noise
+
+    spectrum = Spectrum1D(spectral_axis=frequencies, flux=flux)
+
+    result = equivalent_width(spectrum, continuum=continuum)
+
+    assert result.unit.is_equivalent(spectrum.spectral_axis_unit)
+
+    # Since this is an emission line, we expect the equivalent width value to
+    # be negative
+    expected = -3.2*(np.sqrt(2*np.pi) * u.GHz) / continuum.amplitude.value
 
     assert quantity_allclose(result, expected, atol=0.01*u.GHz)
 

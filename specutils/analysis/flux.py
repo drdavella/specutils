@@ -1,6 +1,7 @@
 from __future__ import division
 
 import numpy as np
+from astropy.modeling import Model
 from astropy.units.quantity import Quantity
 from .utils import computation_wrapper
 
@@ -45,6 +46,9 @@ def equivalent_width(spectrum, continuum=1, region=None):
     TODO:  what frame of reference do you want the spectral_axis to be in ???
     """
 
+    if isinstance(continuum, Model):
+        continuum = continuum(spectrum.spectral_axis)
+
     kwargs = dict(continuum=continuum)
     return computation_wrapper(_compute_equivalent_width, spectrum, region, **kwargs)
 
@@ -78,10 +82,9 @@ def _compute_equivalent_width(spectrum, continuum=1, region=None):
     spectral_axis = calc_spectrum.spectral_axis
     dx = spectral_axis[-1] - spectral_axis[0]
 
-
-    line_flux = _compute_line_flux(spectrum, region)
+    line_flux = _compute_line_flux(spectrum/continuum, region)
 
     # Calculate equivalent width
-    ew =  dx - (line_flux / continuum)
+    ew =  dx - line_flux
 
     return ew
