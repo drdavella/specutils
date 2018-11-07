@@ -22,8 +22,7 @@ def identify_wcs1d_fits(origin, *args, **kwargs):
             )
 
 
-@data_loader("wcs1d-fits", identifier=identify_wcs1d_fits,
-             dtype=Spectrum1D)
+@data_loader("wcs1d-fits", identifier=identify_wcs1d_fits, dtype=Spectrum1D)
 def wcs1d_fits(file_name, spectral_axis_unit=None, **kwargs):
     """
        Parameters

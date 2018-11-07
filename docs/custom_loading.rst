@@ -1,13 +1,17 @@
-*************************************************
-Loading and Defining Custom Spectral File Formats
-*************************************************
+******************************************
+Loading and Defining Spectral File Formats
+******************************************
 
 Loading From a File
 -------------------
 
-Specutils leverages the astropy io registry to provide an interface for conveniently
-loading data from files. To create a custom loader, the user must define it in
-a separate python file and place the file in their ``~/.specutils`` directory.
+Specutils leverages the astropy io registry to provide an interface for
+conveniently loading data from files. The ``specutils`` package provides
+several loaders by default for various common formats, which are described in
+:ref:`default_loaders`.
+
+To create a custom loader, the user must define it in a separate python file
+and place the file in their ``~/.specutils`` directory.
 
 Loading from a FITS File
 ------------------------
@@ -139,6 +143,21 @@ The custom writer can be used by passing the name of the custom writer to the
                       spectral_axis=np.arange(100) * u.AA)
 
     spec.write("my_output.fits", format="fits-writer")
+
+.. _default_loaders:
+
+Default Loaders
+---------------
+
+The following loaders are provided by ``specutils`` by default:
+
+.. autofunction:: specutils.io.default_loaders.wcs_fits_reader.wcs1d_fits
+
+.. autofunction:: specutils.io.default_loaders.tabular_fits_reader.tabular_fits
+
+.. autofunction:: specutils.io.default_loaders.cube_reader.generic_fits
+
+.. autofunction:: specutils.io.default_loaders.muscles_sed_reader.muscles_sed_fits
 
 
 Reference/API
