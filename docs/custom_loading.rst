@@ -1,3 +1,5 @@
+.. currentmodule:: specutils.io.default_loaders
+
 ******************************************
 Loading and Defining Spectral File Formats
 ******************************************
@@ -153,11 +155,15 @@ The following loaders are provided by ``specutils`` by default:
 
 .. autofunction:: specutils.io.default_loaders.wcs_fits_reader.wcs1d_fits
 
-.. autofunction:: specutils.io.default_loaders.tabular_fits_reader.tabular_fits
 
-.. autofunction:: specutils.io.default_loaders.cube_reader.generic_fits
+.. autosummary:: ~tabular_fits_reader.tabular_fits
+    :nosignatures:
 
-.. autofunction:: specutils.io.default_loaders.muscles_sed_reader.muscles_sed_fits
+.. autosummary:: ~cube_reader.generic_fits
+    :nosignatures:
+
+.. autosummary:: ~muscles_sed_reader.muscles_sed_fits
+    :nosignatures:
 
 
 Reference/API
